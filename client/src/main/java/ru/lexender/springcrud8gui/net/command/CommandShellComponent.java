@@ -1,4 +1,4 @@
-package ru.lexender.springcrud8gui.command;
+package ru.lexender.springcrud8gui.net.command;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ public class CommandShellComponent {
     CommandRestClient commandRestClient;
 
     @ShellMethod("Make a query to server")
-    public String s(@ShellOption String command) {
+    public String s(@ShellOption String command) throws Exception {
         return commandRestClient.query(command, null).message();
     }
 }

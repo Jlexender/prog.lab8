@@ -3,7 +3,9 @@ package ru.lexender.springcrud8.model.movie;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,18 +25,18 @@ public class MovieController {
     MovieService movieService;
     ModelMapperService mapperService;
 
-    @PostMapping("/find_all")
-    public List<MovieDTO> findAll() {
-        return movieService
+    @GetMapping("/find_all")
+    public ResponseEntity<List<MovieDTO>> findAll() {
+        return ResponseEntity.ok(movieService
                 .findAll()
                 .stream()
                 .map(m -> mapperService.toDTO(m, MovieDTO.class))
-                .toList();
+                .toList());
     }
 
-    @PostMapping("/find")
-    public MovieDTO findById(@RequestParam Long id) {
-        return mapperService.toDTO(movieService.findById(id), MovieDTO.class);
+    @GetMapping("/find")
+    public ResponseEntity<MovieDTO> findById(@RequestParam Long id) {
+        return ResponseEntity.ok(mapperService.toDTO(movieService.findById(id), MovieDTO.class));
     }
 
     @PostMapping("/save")

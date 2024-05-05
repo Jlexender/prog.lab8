@@ -1,17 +1,26 @@
 package ru.lexender.springcrud8gui.gui;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
+import ru.lexender.springcrud8.dto.MovieDTO;
 import ru.lexender.springcrud8.transfer.AuthResponse;
-import ru.lexender.springcrud8gui.auth.AuthRestClient;
+import ru.lexender.springcrud8gui.net.auth.AuthRestClient;
+import ru.lexender.springcrud8gui.net.collection.CollectionRestClient;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
 
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Component
+@Log4j2
 public class LoginFrame extends JFrame {
 
-    public LoginFrame(AuthRestClient authRestClient, BaseFrame baseFrame) {
+    public LoginFrame(AuthRestClient authRestClient,
+                      BaseFrame baseFrame,
+                      HelpFrame helpFrame,
+                      CollectionRestClient collectionRestClient) {
         super("User login");
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setSize(600, 200);
@@ -32,7 +41,16 @@ public class LoginFrame extends JFrame {
              JOptionPane.showMessageDialog(this, response.message(), "Message", JOptionPane.INFORMATION_MESSAGE);
 
              if (!response.invalid()) {
-                 baseFrame.getUsernameInfoLabel().setText(usernameField.getText());
+                 try {
+                     java.util.List<MovieDTO> movies = collectionRestClient.findAll();
+                     helpFrame.getUsernameInfoLabel().setText(usernameField.getText());
+                     baseFrame.getMovieTableModel().getMovieDTOS().clear();
+                     baseFrame.getMovieTableModel().getMovieDTOS().addAll(movies);
+                     baseFrame.getMovieTableModel().fireTableStructureChanged();
+                 } catch (Exception exception) {
+                     JOptionPane.showMessageDialog(this, exception.getMessage(), "Message", JOptionPane.INFORMATION_MESSAGE);
+                 }
+
              }
         });
 
