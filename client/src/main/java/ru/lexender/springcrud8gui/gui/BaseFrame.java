@@ -9,32 +9,39 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import ru.lexender.springcrud8.transfer.CommandResponse;
 import ru.lexender.springcrud8gui.gui.model.MovieTableModel;
+import ru.lexender.springcrud8gui.gui.visual.VisualFrame;
 import ru.lexender.springcrud8gui.net.command.CommandRestClient;
 
 import javax.swing.*;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.text.NumberFormat;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Setter
 @Getter
 public class BaseFrame extends JFrame {
+    private final AddFrame addFrame;
     JFrame helpFrame;
     JFrame loginFrame;
     CommandRestClient commandRestClient;
     MovieTableModel movieTableModel;
+    VisualFrame visualFrame;
 
     @Lazy
     public BaseFrame(LoginFrame loginFrame,
                      HelpFrame helpFrame,
                      CommandRestClient commandRestClient,
-                     MovieTableModel movieTableModel) {
+                     MovieTableModel movieTableModel,
+                     VisualFrame visualFrame, AddFrame addFrame) {
         super("Collection");
         this.loginFrame = loginFrame;
         this.helpFrame = helpFrame;
         this.commandRestClient = commandRestClient;
         this.movieTableModel = movieTableModel;
+        this.visualFrame = visualFrame;
+        this.addFrame = addFrame;
     }
 
 
@@ -66,9 +73,6 @@ public class BaseFrame extends JFrame {
 
         tabbedPane.addTab("Console", consolePanel);
 
-
-
-
         JPanel languagePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JLabel languageLabel = new JLabel("Choose language:");
         JComboBox<String> languageComboBox = new JComboBox<>(new String[]{"English", "Русский"});
@@ -77,14 +81,15 @@ public class BaseFrame extends JFrame {
 
         add(languagePanel, BorderLayout.NORTH);
 
-
         add(tabbedPane, BorderLayout.CENTER);
 
         JButton helpButton = new JButton("Info");
-        JButton loginButton = new JButton("Login");
+        JButton loginButton = new JButton("Authorization");
+        JButton visualButton = new JButton("Visual"); // Add Visual button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(helpButton);
         buttonPanel.add(loginButton);
+        buttonPanel.add(visualButton); // Add Visual button
         add(buttonPanel, BorderLayout.SOUTH);
 
         loginButton.addActionListener(e -> {
@@ -93,6 +98,10 @@ public class BaseFrame extends JFrame {
 
         helpButton.addActionListener(e -> {
             helpFrame.setVisible(true);
+        });
+
+        visualButton.addActionListener(e -> {
+            visualFrame.setVisible(true); // Show VisualFrame
         });
 
         submitButton.addActionListener(e -> {
@@ -107,6 +116,15 @@ public class BaseFrame extends JFrame {
 
         TableRowSorter<MovieTableModel> sorter = new TableRowSorter<>(movieTableModel);
         table.setRowSorter(sorter);
+
+
+        JButton addButton = new JButton("Add");
+        buttonPanel.add(addButton); // Добавляем кнопку Add в панель с кнопками
+
+        addButton.addActionListener(e -> {
+            addFrame.setVisible(true);
+        });
+
 
         setSize(1200, 800);
         setVisible(true);

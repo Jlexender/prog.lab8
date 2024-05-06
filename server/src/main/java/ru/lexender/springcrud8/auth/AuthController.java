@@ -23,11 +23,11 @@ public class AuthController {
             @RequestParam String username,
             @RequestParam String password) {
 
-        if (userdataService.existsByUsername(username))
+        if (userdataService.existsByUsername(username)) {
             return ResponseEntity
                     .status(401)
                     .body(new AuthResponse(true, "User with this username already exists", null));
-
+        }
         if (password.isBlank()) {
             return ResponseEntity
                     .status(401)
@@ -45,8 +45,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
-            @RequestParam("username") String username,
-            @RequestParam(value = "password", required = false) String password) {
+            @RequestParam String username,
+            @RequestParam String password) {
         if (!userdataService.existsByUsername(username))
             return ResponseEntity
                     .status(401)

@@ -26,7 +26,8 @@ public class TableModelConfiguration {
                 "genre",
                 "operator name",
                 "operator birthday",
-                "operator height"
+                "operator height",
+                "object author"
         ));
     }
 }

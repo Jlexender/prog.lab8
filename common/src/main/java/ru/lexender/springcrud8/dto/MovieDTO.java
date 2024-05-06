@@ -24,4 +24,5 @@ public class MovieDTO {
     Integer length;
     MovieGenre genre;
     PersonDTO operator;
+    UserdataDTO author;
 }

@@ -45,6 +45,7 @@ public class MovieTableModel extends AbstractTableModel {
             case 9 -> movie.getOperator().getName();
             case 10 -> movie.getOperator().getBirthday();
             case 11 -> movie.getOperator().getHeight();
+            case 12 -> movie.getAuthor().getUsername();
             default -> "#";
         };
     }

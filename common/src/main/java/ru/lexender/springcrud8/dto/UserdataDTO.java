@@ -12,7 +12,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Data
 @Builder
-public class CoordinatesDTO {
-    Float x;
-    Integer y;
+public class UserdataDTO {
+    String username;
 }
