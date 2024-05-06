@@ -5,6 +5,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import ru.lexender.springcrud8.transfer.CommandResponse;
@@ -14,8 +17,12 @@ import ru.lexender.springcrud8gui.net.command.CommandRestClient;
 
 import javax.swing.*;
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.DateFormatter;
+import javax.swing.text.DefaultFormatter;
 import java.awt.*;
 import java.text.NumberFormat;
+import java.util.Date;
+import java.util.Properties;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -28,6 +35,7 @@ public class BaseFrame extends JFrame {
     CommandRestClient commandRestClient;
     MovieTableModel movieTableModel;
     VisualFrame visualFrame;
+    JTable table;
 
     @Lazy
     public BaseFrame(LoginFrame loginFrame,
@@ -42,6 +50,8 @@ public class BaseFrame extends JFrame {
         this.movieTableModel = movieTableModel;
         this.visualFrame = visualFrame;
         this.addFrame = addFrame;
+        table = new JTable(10, 5);
+
     }
 
 
@@ -52,7 +62,6 @@ public class BaseFrame extends JFrame {
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        JTable table = new JTable(10, 5);
         table.setModel(movieTableModel);
         JScrollPane tableScrollPane = new JScrollPane(table);
         tabbedPane.addTab("Collection", tableScrollPane);
@@ -104,6 +113,7 @@ public class BaseFrame extends JFrame {
             visualFrame.setVisible(true); // Show VisualFrame
         });
 
+
         submitButton.addActionListener(e -> {
             try {
                 CommandResponse response = commandRestClient.query(inputField.getText(), null);
@@ -124,7 +134,6 @@ public class BaseFrame extends JFrame {
         addButton.addActionListener(e -> {
             addFrame.setVisible(true);
         });
-
 
         setSize(1200, 800);
         setVisible(true);

@@ -4,8 +4,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import ru.lexender.springcrud8.dto.MovieDTO;
+import ru.lexender.springcrud8.dto.MovieGenre;
 
 import javax.swing.table.AbstractTableModel;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,5 +56,18 @@ public class MovieTableModel extends AbstractTableModel {
     @Override
     public String getColumnName(int columnIndex) {
         return columnNames.get(columnIndex);
+    }
+
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        return switch (columnIndex) {
+            case 0, 11, 7, 5, 3, 6 -> Integer.class;
+            case 1, 12, 9 -> String.class;
+            case 2 -> Float.class;
+            case 4 -> LocalDate.class;
+            case 8 -> MovieGenre.class;
+            case 10 -> ZonedDateTime.class;
+            default -> String.class;
+        };
     }
 }

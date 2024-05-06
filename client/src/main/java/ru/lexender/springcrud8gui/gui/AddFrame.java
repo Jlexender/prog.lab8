@@ -1,5 +1,9 @@
 package ru.lexender.springcrud8gui.gui;
 
+import org.jdatepicker.impl.DateComponentFormatter;
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
 import org.springframework.stereotype.Component;
 import ru.lexender.springcrud8.dto.CoordinatesDTO;
 import ru.lexender.springcrud8.dto.MovieDTO;
@@ -8,15 +12,20 @@ import ru.lexender.springcrud8.dto.PersonDTO;
 import ru.lexender.springcrud8.dto.UserdataDTO;
 import ru.lexender.springcrud8.transfer.AuthResponse;
 import ru.lexender.springcrud8.transfer.CommandResponse;
+import ru.lexender.springcrud8gui.gui.model.MovieTableModel;
 import ru.lexender.springcrud8gui.gui.visual.VisualFrame;
 import ru.lexender.springcrud8gui.gui.visual.VisualPanel;
 import ru.lexender.springcrud8gui.net.command.CommandRestClient;
 
 import javax.swing.*;
+import javax.swing.text.DefaultFormatter;
 import java.awt.*;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Properties;
 
 /**
  * the whole code here is fucking awful
@@ -26,13 +35,14 @@ import java.time.format.DateTimeFormatter;
 
 @Component
 public class AddFrame extends JFrame {
-    private final HelpFrame helpFrame;
 
-    public AddFrame(CommandRestClient commandRestClient, VisualPanel visualPanel, HelpFrame helpFrame) {
+    private final MovieTableModel movieTableModel;
+
+    public AddFrame(CommandRestClient commandRestClient, VisualPanel visualPanel, HelpFrame helpFrame, BaseFrame baseFrame, MovieTableModel movieTableModel) {
         super("Add Movie");
 
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        setSize(400, 400);
+        setSize(450, 450);
 
         // Создаем панель для размещения компонентов
         JPanel panel = new JPanel();
@@ -43,19 +53,19 @@ public class AddFrame extends JFrame {
         panel.add(new JTextField());
 
         panel.add(new JLabel("Coordinate X:"));
-        panel.add(new JTextField());
+        panel.add(new NumericTextField());
 
         panel.add(new JLabel("Coordinate Y:"));
-        panel.add(new JTextField());
+        panel.add(new NumericTextField());
 
         panel.add(new JLabel("Oscars Count:"));
-        panel.add(new JTextField());
+        panel.add(new NumericTextField());
 
         panel.add(new JLabel("Golden Palms Count:"));
-        panel.add(new JTextField());
+        panel.add(new NumericTextField());
 
         panel.add(new JLabel("Length:"));
-        panel.add(new JTextField());
+        panel.add(new NumericTextField());
 
         panel.add(new JLabel("Genre:"));
         JComboBox<MovieGenre> genreComboBox = new JComboBox<>(MovieGenre.values());
@@ -65,10 +75,18 @@ public class AddFrame extends JFrame {
         panel.add(new JTextField());
 
         panel.add(new JLabel("Operator Birthday:"));
-        panel.add(new JTextField());
+        UtilDateModel model = new UtilDateModel();
+        Properties p = new Properties();
+        p.put("text.today", "Today");
+        p.put("text.month", "Month");
+        p.put("text.year", "Year");
+        JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+        JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateComponentFormatter());
+
+        panel.add(datePicker);
 
         panel.add(new JLabel("Operator Height:"));
-        panel.add(new JTextField());
+        panel.add(new NumericTextField());
 
         // Создаем кнопку "Add"
         JButton addButton = new JButton("Add");
@@ -83,15 +101,14 @@ public class AddFrame extends JFrame {
                 int length = Integer.parseInt(((JTextField) panel.getComponent(11)).getText());
                 String genre = ((JComboBox<?>) panel.getComponent(13)).getSelectedItem().toString();
                 String operatorName = ((JTextField) panel.getComponent(15)).getText();
-                String operatorBirthday = ((JTextField) panel.getComponent(17)).getText();
+                // Получаем выбранную дату из JDatePickerImpl
+                Date selectedDate = (Date) datePicker.getModel().getValue();
+
+                // Преобразуем Date в ZonedDateTime
+                Instant instant = selectedDate.toInstant();
+                ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault()); // Преобразование в системную временную зону, замените на нужную вам
                 double operatorHeight = Double.parseDouble(((JTextField) panel.getComponent(19)).getText());
 
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssXXX");
-
-                operatorBirthday += "+03:00";
-
-                // Parse the input string into a ZonedDateTime
-                ZonedDateTime zonedDateTime = ZonedDateTime.parse(operatorBirthday, formatter);
 
 
                 MovieDTO movieDTO = MovieDTO.builder()
@@ -115,11 +132,12 @@ public class AddFrame extends JFrame {
                 // Отправляем запрос с помощью CommandRestClient
                 CommandResponse r = commandRestClient.query("add", java.util.List.of(movieDTO));
                 visualPanel.addObject(movieDTO);
-
+                movieTableModel.getMovieDTOS().add(movieDTO);
+                movieTableModel.fireTableDataChanged();
 
                 JOptionPane.showMessageDialog(AddFrame.this, "Added", "Info", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                JOptionPane.showMessageDialog(AddFrame.this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -132,6 +150,6 @@ public class AddFrame extends JFrame {
 
         // Добавляем панель с метками и полями ввода на фрейм
         add(panel);
-        this.helpFrame = helpFrame;
+        this.movieTableModel = movieTableModel;
     }
 }
