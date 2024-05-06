@@ -25,12 +25,12 @@ public class AuthController {
 
         if (userdataService.existsByUsername(username)) {
             return ResponseEntity
-                    .status(401)
+                    .status(200)
                     .body(new AuthResponse(true, "User with this username already exists", null));
         }
         if (password.isBlank()) {
             return ResponseEntity
-                    .status(401)
+                    .status(200)
                     .body(new AuthResponse(true, "Invalid username/password", null));
 
         }
@@ -39,7 +39,7 @@ public class AuthController {
             return ResponseEntity.ok(authService.register(Userdata
                     .builder().username(username).password(password).build()));
         } catch (Exception ex) {
-            return ResponseEntity.internalServerError().body(new AuthResponse(true, ex.getMessage(), null));
+            return ResponseEntity.ok(new AuthResponse(true, ex.getMessage(), null));
         }
     }
 
@@ -49,7 +49,7 @@ public class AuthController {
             @RequestParam String password) {
         if (!userdataService.existsByUsername(username))
             return ResponseEntity
-                    .status(401)
+                    .status(200)
                     .body(new AuthResponse(true,  "Incorrect username/password", null));
 
         try {

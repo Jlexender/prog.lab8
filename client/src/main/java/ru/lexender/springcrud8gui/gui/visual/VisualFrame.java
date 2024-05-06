@@ -1,10 +1,8 @@
 package ru.lexender.springcrud8gui.gui.visual;
 
 import org.springframework.stereotype.Component;
-import ru.lexender.springcrud8.dto.MovieDTO;
 
 import javax.swing.*;
-import java.util.List;
 
 @Component
 public class VisualFrame extends JFrame {

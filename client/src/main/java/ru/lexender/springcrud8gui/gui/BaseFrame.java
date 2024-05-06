@@ -5,9 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-import org.jdatepicker.impl.JDatePanelImpl;
-import org.jdatepicker.impl.JDatePickerImpl;
-import org.jdatepicker.impl.UtilDateModel;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import ru.lexender.springcrud8.transfer.CommandResponse;
@@ -17,12 +14,7 @@ import ru.lexender.springcrud8gui.net.command.CommandRestClient;
 
 import javax.swing.*;
 import javax.swing.table.TableRowSorter;
-import javax.swing.text.DateFormatter;
-import javax.swing.text.DefaultFormatter;
 import java.awt.*;
-import java.text.NumberFormat;
-import java.util.Date;
-import java.util.Properties;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -39,13 +31,13 @@ public class BaseFrame extends JFrame {
 
     @Lazy
     public BaseFrame(LoginFrame loginFrame,
-                     HelpFrame helpFrame,
+                     InfoFrame infoFrame,
                      CommandRestClient commandRestClient,
                      MovieTableModel movieTableModel,
                      VisualFrame visualFrame, AddFrame addFrame) {
         super("Collection");
         this.loginFrame = loginFrame;
-        this.helpFrame = helpFrame;
+        this.helpFrame = infoFrame;
         this.commandRestClient = commandRestClient;
         this.movieTableModel = movieTableModel;
         this.visualFrame = visualFrame;

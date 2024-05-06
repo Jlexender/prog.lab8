@@ -10,20 +10,16 @@ import ru.lexender.springcrud8.dto.MovieDTO;
 import ru.lexender.springcrud8.dto.MovieGenre;
 import ru.lexender.springcrud8.dto.PersonDTO;
 import ru.lexender.springcrud8.dto.UserdataDTO;
-import ru.lexender.springcrud8.transfer.AuthResponse;
 import ru.lexender.springcrud8.transfer.CommandResponse;
 import ru.lexender.springcrud8gui.gui.model.MovieTableModel;
-import ru.lexender.springcrud8gui.gui.visual.VisualFrame;
 import ru.lexender.springcrud8gui.gui.visual.VisualPanel;
 import ru.lexender.springcrud8gui.net.command.CommandRestClient;
 
 import javax.swing.*;
-import javax.swing.text.DefaultFormatter;
 import java.awt.*;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Properties;
 
@@ -38,7 +34,7 @@ public class AddFrame extends JFrame {
 
     private final MovieTableModel movieTableModel;
 
-    public AddFrame(CommandRestClient commandRestClient, VisualPanel visualPanel, HelpFrame helpFrame, BaseFrame baseFrame, MovieTableModel movieTableModel) {
+    public AddFrame(CommandRestClient commandRestClient, VisualPanel visualPanel, InfoFrame infoFrame, BaseFrame baseFrame, MovieTableModel movieTableModel) {
         super("Add Movie");
 
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -126,7 +122,7 @@ public class AddFrame extends JFrame {
                                 .birthday(zonedDateTime)
                                 .height(operatorHeight)
                                 .build())
-                        .author(new UserdataDTO(helpFrame.getUsernameInfoLabel().getText()))
+                        .author(new UserdataDTO(infoFrame.getUsernameInfoLabel().getText()))
                         .build();
 
                 // Отправляем запрос с помощью CommandRestClient

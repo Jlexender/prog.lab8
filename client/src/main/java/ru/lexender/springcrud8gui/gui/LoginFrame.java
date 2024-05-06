@@ -20,7 +20,7 @@ public class LoginFrame extends JFrame {
 
     public LoginFrame(AuthRestClient authRestClient,
                       BaseFrame baseFrame,
-                      HelpFrame helpFrame,
+                      InfoFrame infoFrame,
                       CollectionRestClient collectionRestClient,
                       VisualPanel visualPanel) {
         super("Authorization");
@@ -66,7 +66,7 @@ public class LoginFrame extends JFrame {
             if (!response.invalid()) {
                 try {
                     java.util.List<MovieDTO> movies = collectionRestClient.findAll();
-                    helpFrame.getUsernameInfoLabel().setText(usernameField.getText());
+                    infoFrame.getUsernameInfoLabel().setText(usernameField.getText());
                     baseFrame.getMovieTableModel().getMovieDTOS().clear();
                     baseFrame.getMovieTableModel().getMovieDTOS().addAll(movies);
                     baseFrame.getMovieTableModel().fireTableStructureChanged();

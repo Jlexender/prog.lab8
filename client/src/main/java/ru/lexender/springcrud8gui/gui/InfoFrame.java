@@ -15,11 +15,11 @@ import java.time.format.DateTimeFormatter;
 
 @Component
 @Getter
-public class HelpFrame extends JFrame {
+public class InfoFrame extends JFrame {
     JLabel usernameInfoLabel = new JLabel();
 
-    public HelpFrame() {
-        super("Help window");
+    public InfoFrame() {
+        super("Information");
 
         JPanel infoPanel = new JPanel(new GridLayout(4, 2));
 
@@ -45,7 +45,7 @@ public class HelpFrame extends JFrame {
                 StringSelection stringSelection = new StringSelection(tokenLabel.getText());
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                 clipboard.setContents(stringSelection, null);
-                JOptionPane.showMessageDialog(HelpFrame.this, "Copied to clipboard", "Message", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(InfoFrame.this, "Copied to clipboard", "Message", JOptionPane.INFORMATION_MESSAGE);
                 tokenLabel.setText("");
             }
         });

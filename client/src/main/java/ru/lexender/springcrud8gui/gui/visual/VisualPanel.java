@@ -1,6 +1,5 @@
 package ru.lexender.springcrud8gui.gui.visual;
 
-import lombok.Getter;
 import org.springframework.stereotype.Component;
 import ru.lexender.springcrud8.dto.CoordinatesDTO;
 import ru.lexender.springcrud8.dto.MovieDTO;
@@ -61,7 +60,7 @@ public class VisualPanel extends JPanel {
             g2d.setColor(authorColor);
 
             // Calculate radius based on Oscars count
-            int radius = 25 + obj.getOscarsCount().intValue(); // Adjust the base radius as needed
+            int radius = 25 + 5*obj.getOscarsCount().intValue(); // Adjust the base radius as needed
 
             // Draw oval with transparency
             g2d.fillOval(Math.round(obj.getCoordinates().getX()) - radius - xOffset,
