@@ -8,7 +8,6 @@ import javax.swing.*;
 public class VisualFrame extends JFrame {
 
     public VisualFrame(VisualPanel visualPanel) {
-        setTitle("Visualization");
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setSize(1200, 800);
         setLocationRelativeTo(null);

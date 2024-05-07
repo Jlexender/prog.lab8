@@ -2,24 +2,39 @@ package ru.lexender.springcrud8gui.gui.model;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.lexender.springcrud8.dto.MovieDTO;
 import ru.lexender.springcrud8.dto.MovieGenre;
+import ru.lexender.springcrud8gui.gui.localization.LocalizationService;
+import ru.lexender.springcrud8gui.net.collection.CollectionRestClient;
 
 import javax.swing.table.AbstractTableModel;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Getter
+@Component
+@Setter
 public class MovieTableModel extends AbstractTableModel {
-    List<MovieDTO> movieDTOS = new ArrayList<>();
-    List<String> columnNames;
+    List<MovieDTO> movieDTOS = new LinkedList<>();
+    @NonFinal List<String> columnNames = new LinkedList<>();
+    LocalizationService localizationService;
+    CollectionRestClient collectionRestClient;
 
-    public MovieTableModel(List<String> columnNames) {
-        this.columnNames = columnNames;
+    @Autowired
+    public MovieTableModel(LocalizationService localizationService,
+                           CollectionRestClient collectionRestClient) {
+        this.localizationService = localizationService;
+        this.collectionRestClient = collectionRestClient;
+        update();
     }
 
     @Override
@@ -70,4 +85,25 @@ public class MovieTableModel extends AbstractTableModel {
             default -> String.class;
         };
     }
+
+    public void update() {
+        setColumnNames(List.of(
+                localizationService.get("movie.fields.id"),
+                localizationService.get("movie.fields.name"),
+                localizationService.get("movie.fields.coordx"),
+                localizationService.get("movie.fields.coordy"),
+                localizationService.get("movie.fields.cdate"),
+                localizationService.get("movie.fields.oscars"),
+                localizationService.get("movie.fields.gpalms"),
+                localizationService.get("movie.fields.length"),
+                localizationService.get("movie.fields.genre"),
+                localizationService.get("movie.fields.opname"),
+                localizationService.get("movie.fields.opbd"),
+                localizationService.get("movie.fields.oph"),
+                localizationService.get("movie.fields.author")
+        ));
+        fireTableStructureChanged();
+    }
+
+
 }

@@ -1,7 +1,9 @@
 package ru.lexender.springcrud8gui.gui;
 
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
+import ru.lexender.springcrud8gui.gui.localization.LocalizationService;
 import ru.lexender.springcrud8gui.net.NetConfiguration;
 
 import javax.swing.*;
@@ -16,17 +18,23 @@ import java.time.format.DateTimeFormatter;
 @Component
 @Getter
 public class InfoFrame extends JFrame {
-    JLabel usernameInfoLabel = new JLabel();
+    private final LocalizationService localizationService;
+    JLabel usernameInfoLabel = new JLabel(), dateTimeLabel, usernameLabel, tokenInfoLabel, tokenLabel = new JLabel();
+    JButton tokenButton;
 
-    public InfoFrame() {
-        super("Information");
+    public InfoFrame(LocalizationService localizationService) {
+        super(localizationService.get("info.frame.title"));
+        this.localizationService = localizationService;
 
+        dateTimeLabel = new JLabel(localizationService.get("label.dateandtime"));
+        usernameLabel = new JLabel(localizationService.get("label.username"));
+        tokenInfoLabel = new JLabel(localizationService.get("label.token"));
+        tokenButton = createTokenButton(tokenLabel);
+    }
+
+    @PostConstruct
+    private void init() {
         JPanel infoPanel = new JPanel(new GridLayout(4, 2));
-
-        JLabel dateTimeLabel = new JLabel("Date and Time:");
-        JLabel usernameLabel = new JLabel("Username:");
-        JLabel tokenInfoLabel = new JLabel("Token:");
-        JLabel tokenLabel = new JLabel();
 
         Font plainFont = new Font(Font.DIALOG, Font.PLAIN, 12);
         dateTimeLabel.setFont(plainFont);
@@ -34,8 +42,6 @@ public class InfoFrame extends JFrame {
         tokenInfoLabel.setFont(plainFont);
         tokenLabel.setFont(plainFont);
         tokenLabel.setForeground(Color.BLUE);
-
-
 
         tokenLabel.addMouseListener(new MouseAdapter() {
             @Override
@@ -45,7 +51,10 @@ public class InfoFrame extends JFrame {
                 StringSelection stringSelection = new StringSelection(tokenLabel.getText());
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                 clipboard.setContents(stringSelection, null);
-                JOptionPane.showMessageDialog(InfoFrame.this, "Copied to clipboard", "Message", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(InfoFrame.this,
+                        localizationService.get("notification.copiedtoclipboard"),
+                        localizationService.get("notification.title"),
+                        JOptionPane.INFORMATION_MESSAGE);
                 tokenLabel.setText("");
             }
         });
@@ -62,6 +71,7 @@ public class InfoFrame extends JFrame {
 
         setSize(450, 600);
         setDefaultCloseOperation(HIDE_ON_CLOSE);
+        repaint();
     }
 
     JLabel createDateTimeLabel() {
@@ -79,8 +89,16 @@ public class InfoFrame extends JFrame {
     }
 
     JButton createTokenButton(JLabel tokenLabel) {
-        JButton tokenButton = new JButton("Show Token");
+        tokenButton = new JButton(localizationService.get("button.showtoken"));
         tokenButton.addActionListener(e -> tokenLabel.setText(NetConfiguration.authToken));
         return tokenButton;
+    }
+
+    public void refreshUI() {
+        dateTimeLabel.setText(localizationService.get("label.dateandtime"));
+        usernameLabel.setText(localizationService.get("label.username"));
+        tokenInfoLabel.setText(localizationService.get("label.token"));
+        tokenButton.setText(localizationService.get("button.showtoken"));
+        super.setTitle(localizationService.get("info.frame.title"));
     }
 }

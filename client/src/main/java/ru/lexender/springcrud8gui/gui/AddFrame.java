@@ -1,5 +1,6 @@
 package ru.lexender.springcrud8gui.gui;
 
+import jakarta.annotation.PostConstruct;
 import org.jdatepicker.impl.DateComponentFormatter;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
@@ -11,6 +12,7 @@ import ru.lexender.springcrud8.dto.MovieGenre;
 import ru.lexender.springcrud8.dto.PersonDTO;
 import ru.lexender.springcrud8.dto.UserdataDTO;
 import ru.lexender.springcrud8.transfer.CommandResponse;
+import ru.lexender.springcrud8gui.gui.localization.LocalizationService;
 import ru.lexender.springcrud8gui.gui.model.MovieTableModel;
 import ru.lexender.springcrud8gui.gui.visual.VisualPanel;
 import ru.lexender.springcrud8gui.net.command.CommandRestClient;
@@ -20,6 +22,7 @@ import java.awt.*;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 
@@ -33,10 +36,33 @@ import java.util.Properties;
 public class AddFrame extends JFrame {
 
     private final MovieTableModel movieTableModel;
+    private final LocalizationService localizationService;
+    private final CommandRestClient commandRestClient;
+    private final VisualPanel visualPanel;
+    private final InfoFrame infoFrame;
+    private JLabel nameLabel,
+            cxLabel, cyLabel, oscarsLabel,
+            gpalmsLabel, lengthLabel, opNameLabel,
+            opBdLabel, opHLabel, genreLabel;
+    private JButton addButton;
+    private JDatePanelImpl datePanel;
+    private UtilDateModel model;
 
-    public AddFrame(CommandRestClient commandRestClient, VisualPanel visualPanel, InfoFrame infoFrame, BaseFrame baseFrame, MovieTableModel movieTableModel) {
-        super("Add Movie");
+    public AddFrame(CommandRestClient commandRestClient,
+                    VisualPanel visualPanel,
+                    InfoFrame infoFrame,
+                    MovieTableModel movieTableModel, LocalizationService localizationService) {
+        super(localizationService.get("add.frame.title"));
 
+        this.commandRestClient = commandRestClient;
+        this.visualPanel = visualPanel;
+        this.infoFrame = infoFrame;
+        this.movieTableModel = movieTableModel;
+        this.localizationService = localizationService;
+    }
+
+    @PostConstruct
+    private void init() {
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setSize(450, 450);
 
@@ -45,47 +71,58 @@ public class AddFrame extends JFrame {
         panel.setLayout(new GridLayout(0, 2, 10, 10)); // Сетка 2 столбца, отступы 10 пикселей
 
         // Добавляем метки и поля ввода с отступами
-        panel.add(new JLabel("Name:"));
+
+        nameLabel = new JLabel(localizationService.get("movie.fields.name"));
+        panel.add(nameLabel);
         panel.add(new JTextField());
 
-        panel.add(new JLabel("Coordinate X:"));
-        panel.add(new NumericTextField());
+        cxLabel = new JLabel(localizationService.get("movie.fields.coordx"));
+        panel.add(cxLabel);
+        panel.add(new NumericTextField(true));
 
-        panel.add(new JLabel("Coordinate Y:"));
-        panel.add(new NumericTextField());
+        cyLabel = new JLabel(localizationService.get("movie.fields.coordy"));
+        panel.add(cyLabel);
+        panel.add(new NumericTextField(false));
 
-        panel.add(new JLabel("Oscars Count:"));
-        panel.add(new NumericTextField());
+        oscarsLabel = new JLabel(localizationService.get("movie.fields.oscars"));
+        panel.add(oscarsLabel);
+        panel.add(new NumericTextField(false));
 
-        panel.add(new JLabel("Golden Palms Count:"));
-        panel.add(new NumericTextField());
+        gpalmsLabel = new JLabel(localizationService.get("movie.fields.gpalms"));
+        panel.add(gpalmsLabel);
+        panel.add(new NumericTextField(false));
 
-        panel.add(new JLabel("Length:"));
-        panel.add(new NumericTextField());
+        lengthLabel = new JLabel(localizationService.get("movie.fields.length"));
+        panel.add(lengthLabel);
+        panel.add(new NumericTextField(false));
 
-        panel.add(new JLabel("Genre:"));
+        genreLabel = new JLabel(localizationService.get("movie.fields.genre"));
+        panel.add(genreLabel);
         JComboBox<MovieGenre> genreComboBox = new JComboBox<>(MovieGenre.values());
         panel.add(genreComboBox);
 
-        panel.add(new JLabel("Operator Name:"));
+        opNameLabel = new JLabel(localizationService.get("movie.fields.opname"));
+        panel.add(opNameLabel);
         panel.add(new JTextField());
 
-        panel.add(new JLabel("Operator Birthday:"));
-        UtilDateModel model = new UtilDateModel();
+        opBdLabel = new JLabel(localizationService.get("movie.fields.opbd"));
+        panel.add(opBdLabel);
+        model = new UtilDateModel();
         Properties p = new Properties();
-        p.put("text.today", "Today");
-        p.put("text.month", "Month");
-        p.put("text.year", "Year");
-        JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+        p.put("text.today", localizationService.get("calendar.today"));
+        p.put("text.month", localizationService.get("calendar.month"));
+        p.put("text.year", localizationService.get("calendar.year"));
+        datePanel = new JDatePanelImpl(model, p);
         JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateComponentFormatter());
 
         panel.add(datePicker);
 
-        panel.add(new JLabel("Operator Height:"));
-        panel.add(new NumericTextField());
+        opHLabel = new JLabel(localizationService.get("movie.fields.oph"));
+        panel.add(opHLabel);
+        panel.add(new NumericTextField(true));
 
         // Создаем кнопку "Add"
-        JButton addButton = new JButton("Add");
+        addButton = new JButton(localizationService.get("button.add"));
         addButton.addActionListener(e -> {
             try {
                 // Получаем значения из текстовых полей
@@ -127,13 +164,13 @@ public class AddFrame extends JFrame {
 
                 // Отправляем запрос с помощью CommandRestClient
                 CommandResponse r = commandRestClient.query("add", java.util.List.of(movieDTO));
-                visualPanel.addObject(movieDTO);
                 movieTableModel.getMovieDTOS().add(movieDTO);
-                movieTableModel.fireTableDataChanged();
 
-                JOptionPane.showMessageDialog(AddFrame.this, "Added", "Info", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(AddFrame.this, localizationService.get("addcmd.added"),
+                        localizationService.get("information.title"), JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(AddFrame.this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(AddFrame.this, ex.getMessage(),
+                        localizationService.get("error.title"), JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -146,6 +183,20 @@ public class AddFrame extends JFrame {
 
         // Добавляем панель с метками и полями ввода на фрейм
         add(panel);
-        this.movieTableModel = movieTableModel;
+    }
+
+    public void refreshUI() {
+        addButton.setText(localizationService.get("button.add"));
+        nameLabel.setText(localizationService.get("movie.fields.name"));
+        opNameLabel.setText(localizationService.get("movie.fields.opname"));
+        opHLabel.setText(localizationService.get("movie.fields.oph"));
+        opBdLabel.setText(localizationService.get("movie.fields.opbd"));
+        lengthLabel.setText(localizationService.get("movie.fields.length"));
+        gpalmsLabel.setText(localizationService.get("movie.fields.gpalms"));
+        oscarsLabel.setText(localizationService.get("movie.fields.oscars"));
+        cxLabel.setText(localizationService.get("movie.fields.coordx"));
+        cyLabel.setText(localizationService.get("movie.fields.coordy"));
+        genreLabel.setText(localizationService.get("movie.fields.genre"));
+        super.setTitle(localizationService.get("add.frame.title"));
     }
 }

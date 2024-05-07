@@ -5,45 +5,62 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import ru.lexender.springcrud8.dto.MovieDTO;
 import ru.lexender.springcrud8.transfer.CommandResponse;
+import ru.lexender.springcrud8gui.gui.localization.LocalizationService;
 import ru.lexender.springcrud8gui.gui.model.MovieTableModel;
 import ru.lexender.springcrud8gui.gui.visual.VisualFrame;
+import ru.lexender.springcrud8gui.net.NetConfiguration;
+import ru.lexender.springcrud8gui.net.collection.CollectionRestClient;
 import ru.lexender.springcrud8gui.net.command.CommandRestClient;
 
 import javax.swing.*;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.util.ArrayList;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Setter
 @Getter
+@Log4j2
 public class BaseFrame extends JFrame {
+    private java.util.List<java.awt.Component> allComponents = new ArrayList<>();
     private final AddFrame addFrame;
-    JFrame helpFrame;
-    JFrame loginFrame;
+    InfoFrame helpFrame;
+    LoginFrame loginFrame;
     CommandRestClient commandRestClient;
     MovieTableModel movieTableModel;
     VisualFrame visualFrame;
     JTable table;
+    LocalizationService localizationService;
+    JButton submitButton, helpButton, visualButton, loginButton, addButton;
+    JLabel languageLabel;
+    JTabbedPane tabbedPane;
+    CollectionRestClient collectionRestClient;
 
     @Lazy
     public BaseFrame(LoginFrame loginFrame,
                      InfoFrame infoFrame,
                      CommandRestClient commandRestClient,
                      MovieTableModel movieTableModel,
-                     VisualFrame visualFrame, AddFrame addFrame) {
-        super("Collection");
+                     VisualFrame visualFrame,
+                     AddFrame addFrame,
+                     LocalizationService localizationService,
+                     CollectionRestClient collectionRestClient) {
+        super(localizationService.get("base.frame.title"));
         this.loginFrame = loginFrame;
         this.helpFrame = infoFrame;
         this.commandRestClient = commandRestClient;
         this.movieTableModel = movieTableModel;
         this.visualFrame = visualFrame;
         this.addFrame = addFrame;
-        table = new JTable(10, 5);
-
+        this.localizationService = localizationService;
+        this.collectionRestClient = collectionRestClient;
+        table = new JTable();
     }
 
 
@@ -52,17 +69,19 @@ public class BaseFrame extends JFrame {
     void init() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane();
 
         table.setModel(movieTableModel);
         JScrollPane tableScrollPane = new JScrollPane(table);
-        tabbedPane.addTab("Collection", tableScrollPane);
+
+        tabbedPane.addTab(localizationService.get("base.panel.tab"), tableScrollPane);
 
         JPanel consolePanel = new JPanel(new BorderLayout());
 
         JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JTextField inputField = new JTextField(20);
-        JButton submitButton = new JButton("Submit");
+        submitButton = new JButton(localizationService.get("button.submit"));
+
         inputPanel.add(inputField);
         inputPanel.add(submitButton);
         consolePanel.add(inputPanel, BorderLayout.NORTH);
@@ -72,11 +91,11 @@ public class BaseFrame extends JFrame {
         JScrollPane responseScrollPane = new JScrollPane(serverResponseArea);
         consolePanel.add(responseScrollPane, BorderLayout.CENTER);
 
-        tabbedPane.addTab("Console", consolePanel);
+        tabbedPane.addTab(localizationService.get("button.console"), consolePanel);
 
         JPanel languagePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JLabel languageLabel = new JLabel("Choose language:");
-        JComboBox<String> languageComboBox = new JComboBox<>(new String[]{"English", "Русский"});
+        languageLabel = new JLabel(localizationService.get("label.choose.language"));
+        LanguageComboBox languageComboBox = new LanguageComboBox(this);
         languagePanel.add(languageLabel);
         languagePanel.add(languageComboBox);
 
@@ -84,9 +103,10 @@ public class BaseFrame extends JFrame {
 
         add(tabbedPane, BorderLayout.CENTER);
 
-        JButton helpButton = new JButton("Info");
-        JButton loginButton = new JButton("Authorization");
-        JButton visualButton = new JButton("Visual"); // Add Visual button
+        helpButton = new JButton(localizationService.get("button.info"));
+        loginButton = new JButton(localizationService.get("button.authorization"));
+        visualButton = new JButton(localizationService.get("button.visual")); // Add Visual button
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(helpButton);
         buttonPanel.add(loginButton);
@@ -109,9 +129,11 @@ public class BaseFrame extends JFrame {
         submitButton.addActionListener(e -> {
             try {
                 CommandResponse response = commandRestClient.query(inputField.getText(), null);
-                serverResponseArea.append("Server message:\n" + response.message() + '\n');
+                serverResponseArea.append(localizationService.get("notification.servermsg") + '\n' + response.message() + '\n');
             } catch (Exception exception) {
-                JOptionPane.showMessageDialog(BaseFrame.this, "Server is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(BaseFrame.this,
+                        localizationService.get("error.serverunavailable"),
+                        localizationService.get("error.title"), JOptionPane.ERROR_MESSAGE);
             }
             inputField.setText("");
         });
@@ -120,14 +142,36 @@ public class BaseFrame extends JFrame {
         table.setRowSorter(sorter);
 
 
-        JButton addButton = new JButton("Add");
+        addButton = new JButton(localizationService.get("button.add"));
         buttonPanel.add(addButton); // Добавляем кнопку Add в панель с кнопками
 
         addButton.addActionListener(e -> {
             addFrame.setVisible(true);
         });
 
+
+
         setSize(1200, 800);
         setVisible(true);
     }
+
+    public void refreshUI() {
+        super.setTitle(localizationService.get("base.frame.title"));
+        helpButton.setText(localizationService.get("button.info"));
+        loginButton.setText(localizationService.get("button.authorization"));
+        visualButton.setText(localizationService.get("button.visual"));
+        submitButton.setText(localizationService.get("button.submit"));
+        addButton.setText(localizationService.get("button.add"));
+        tabbedPane.setTitleAt(0, localizationService.get("base.panel.tab"));
+        tabbedPane.setTitleAt(1, localizationService.get("button.console"));
+    }
+
+    public void refreshTable() throws Exception {
+        if (NetConfiguration.authToken != null) {
+            movieTableModel.getMovieDTOS().clear();
+            movieTableModel.getMovieDTOS().addAll(collectionRestClient.findAll());
+            movieTableModel.fireTableDataChanged();
+        }
+    }
+
 }
