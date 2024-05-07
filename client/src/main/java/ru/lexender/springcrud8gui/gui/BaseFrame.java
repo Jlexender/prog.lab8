@@ -8,7 +8,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import ru.lexender.springcrud8.dto.MovieDTO;
 import ru.lexender.springcrud8.transfer.CommandResponse;
 import ru.lexender.springcrud8gui.gui.localization.LocalizationService;
 import ru.lexender.springcrud8gui.gui.model.MovieTableModel;

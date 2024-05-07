@@ -31,7 +31,7 @@ public class HelpCommand extends AbstractCommand {
                         o -> {
                             sb.append("%s: %s (%s)\n"
                                     .formatted(o.getAbbreviation(), o.getDescription(), o.getPermissionLimit()));
-                            if (o.getSyntax() != null) sb.append("SYNTAX: %s %s".formatted(o.getAbbreviation(), o.getSyntax()));
+                            if (o.getSyntax() != null) sb.append("SYNTAX: %s %s\n".formatted(o.getAbbreviation(), o.getSyntax()));
                             sb.append('\n');
                         }
                 );

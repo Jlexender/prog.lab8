@@ -10,6 +10,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.lexender.springcrud8.auth.jwt.JwtService;
+import ru.lexender.springcrud8.auth.refresh.RefreshService;
+import ru.lexender.springcrud8.auth.refresh.RefreshToken;
 import ru.lexender.springcrud8.auth.userdata.Userdata;
 import ru.lexender.springcrud8.auth.userdata.UserdataService;
 import ru.lexender.springcrud8.transfer.AuthResponse;
@@ -23,11 +25,15 @@ public class AuthService {
     PasswordEncoder passwordEncoder;
     AuthenticationManager authenticationManager;
     JwtService jwtService;
+    private final RefreshService refreshService;
 
     public AuthResponse register(Userdata user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        String token = jwtService.generateToken(userdataService.save(user));
+        String rt = jwtService.generateRT(user.getUsername());
         return new AuthResponse(false, "Successfully registered",
-                jwtService.generateToken(userdataService.save(user)));
+                token,
+                refreshService.save(new RefreshToken(user.getUsername(), rt)).getToken());
     }
 
     public AuthResponse authenticate(String username, String password) {
@@ -37,7 +43,9 @@ public class AuthService {
         );
         Userdata user = userdataService.findByUsername(username).orElseThrow();
         String token = jwtService.generateToken(user);
+        String rt = jwtService.generateRT(user.getUsername());
 
-        return new AuthResponse(false, "Successfully logged in", token);
+        return new AuthResponse(false, "Successfully logged in", token,
+                refreshService.save(new RefreshToken(username, rt)).getToken());
     }
 }

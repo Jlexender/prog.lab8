@@ -1,7 +1,7 @@
-package ru.lexender.springcrud8.model.coordinates;
+package ru.lexender.springcrud8.auth.refresh;
 
-
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,12 +14,14 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @NoArgsConstructor
-@Embeddable
+@Entity
 @Getter
 @Setter
 @Builder
 @ToString
-public class Coordinates {
-    Float x;
-    Integer y;
+public class RefreshToken {
+    @Id
+    String username;
+
+    String token;
 }

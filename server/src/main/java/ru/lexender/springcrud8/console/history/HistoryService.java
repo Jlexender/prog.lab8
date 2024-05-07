@@ -37,4 +37,8 @@ public class HistoryService {
     public HistoryLog save(HistoryLog log) {
         return repository.save(log);
     }
+
+    public List<HistoryLog> findByUsername(String username) {
+        return findAll().stream().filter(o -> o.getUserdata().getUsername().equals(username)).toList();
+    }
 }

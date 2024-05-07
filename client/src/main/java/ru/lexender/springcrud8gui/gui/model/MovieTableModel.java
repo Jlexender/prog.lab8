@@ -15,7 +15,6 @@ import ru.lexender.springcrud8gui.net.collection.CollectionRestClient;
 import javax.swing.table.AbstractTableModel;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
