@@ -62,7 +62,7 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@RequestParam String username,
                                                 @RequestParam String token) {
-        if (userdataService.existsByUsername(username)) {
+        if (!userdataService.existsByUsername(username)) {
             return ResponseEntity.ok(new AuthResponse(true, "DENIED", null, null));
         }
         return ResponseEntity.ok(authService.refresh(username, token));
