@@ -14,8 +14,6 @@ import ru.lexender.springcrud8.auth.userdata.Userdata;
 import ru.lexender.springcrud8.auth.userdata.UserdataService;
 import ru.lexender.springcrud8.transfer.AuthResponse;
 
-import java.util.Optional;
-
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Log4j2
@@ -59,7 +57,7 @@ public class AuthService {
         if (passwordEncoder.matches(token, user.getRefreshToken())) {
             String accessToken = jwtService.generateToken(user);
             String refreshToken = jwtService.generateRT(user.getUsername());
-            user.setRefreshToken(refreshToken);
+            user.setRefreshToken(passwordEncoder.encode(refreshToken));
             userdataService.save(user);
             return new AuthResponse(false, "GRANTED", accessToken, refreshToken);
         }
