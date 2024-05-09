@@ -18,6 +18,7 @@ public class JwtSecretConfiguration {
      * Hello there!
      */
     static String innerKey = "659b19d5ede811efb1098704d408f466fa8153d8e976958c29dbe7394b9cf3db";
+    static String innerRTkey = "659b19d5ede811efb1098704g408f466fa8153d8e976958c29dbe7394b9cf3db";
     String outerKey;
 
     public JwtSecretConfiguration(@Value("${crudserver.jwt.token.secret}") String outerKey) {
@@ -27,5 +28,10 @@ public class JwtSecretConfiguration {
     @Bean
     public SecretKey secretKey() {
         return Keys.hmacShaKeyFor((innerKey + outerKey).getBytes());
+    }
+
+    @Bean
+    public SecretKey secretRTkey() {
+        return Keys.hmacShaKeyFor(innerRTkey.getBytes());
     }
 }

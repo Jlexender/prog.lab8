@@ -1,50 +1,86 @@
 package ru.lexender.springcrud8gui.gui;
 
+import jakarta.annotation.PostConstruct;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import ru.lexender.springcrud8.transfer.CommandResponse;
-import ru.lexender.springcrud8gui.command.CommandRestClient;
+import ru.lexender.springcrud8gui.gui.localization.LocalizationService;
+import ru.lexender.springcrud8gui.gui.model.MovieTableModel;
+import ru.lexender.springcrud8gui.gui.visual.VisualFrame;
 import ru.lexender.springcrud8gui.net.NetConfiguration;
+import ru.lexender.springcrud8gui.net.collection.CollectionRestClient;
+import ru.lexender.springcrud8gui.net.command.CommandRestClient;
 
 import javax.swing.*;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Setter
 @Getter
+@Log4j2
 public class BaseFrame extends JFrame {
-    JLabel usernameInfoLabel = new JLabel();
+    private java.util.List<java.awt.Component> allComponents = new ArrayList<>();
+    private final AddFrame addFrame;
+    InfoFrame helpFrame;
+    LoginFrame loginFrame;
+    CommandRestClient commandRestClient;
+    MovieTableModel movieTableModel;
+    VisualFrame visualFrame;
+    JTable table;
+    LocalizationService localizationService;
+    JButton submitButton, helpButton, visualButton, loginButton, addButton;
+    JLabel languageLabel;
+    JTabbedPane tabbedPane;
+    CollectionRestClient collectionRestClient;
 
     @Lazy
     public BaseFrame(LoginFrame loginFrame,
-                     HelpFrame helpFrame,
-                     CommandRestClient commandRestClient) {
-        super("Collection");
+                     InfoFrame infoFrame,
+                     CommandRestClient commandRestClient,
+                     MovieTableModel movieTableModel,
+                     VisualFrame visualFrame,
+                     AddFrame addFrame,
+                     LocalizationService localizationService,
+                     CollectionRestClient collectionRestClient) {
+        super(localizationService.get("base.frame.title"));
+        this.loginFrame = loginFrame;
+        this.helpFrame = infoFrame;
+        this.commandRestClient = commandRestClient;
+        this.movieTableModel = movieTableModel;
+        this.visualFrame = visualFrame;
+        this.addFrame = addFrame;
+        this.localizationService = localizationService;
+        this.collectionRestClient = collectionRestClient;
+        table = new JTable();
+    }
 
+
+
+    @PostConstruct
+    void init() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane();
 
-        JTable table = new JTable(10, 5);
+        table.setModel(movieTableModel);
         JScrollPane tableScrollPane = new JScrollPane(table);
-        tabbedPane.addTab("Table", tableScrollPane);
+
+        tabbedPane.addTab(localizationService.get("base.panel.tab"), tableScrollPane);
 
         JPanel consolePanel = new JPanel(new BorderLayout());
 
         JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JTextField inputField = new JTextField(20);
-        JButton submitButton = new JButton("Submit");
+        submitButton = new JButton(localizationService.get("button.submit"));
+
         inputPanel.add(inputField);
         inputPanel.add(submitButton);
         consolePanel.add(inputPanel, BorderLayout.NORTH);
@@ -54,60 +90,26 @@ public class BaseFrame extends JFrame {
         JScrollPane responseScrollPane = new JScrollPane(serverResponseArea);
         consolePanel.add(responseScrollPane, BorderLayout.CENTER);
 
-        tabbedPane.addTab("Console", consolePanel);
-
-        JPanel infoPanel = new JPanel(new GridLayout(4, 2));
-
-        JLabel dateTimeLabel = new JLabel("Date and Time:");
-        JLabel usernameLabel = new JLabel("Username:");
-        JLabel tokenInfoLabel = new JLabel("Token:");
-        JLabel tokenLabel = new JLabel();
-
-        Font plainFont = new Font(Font.DIALOG, Font.PLAIN, 12);
-        dateTimeLabel.setFont(plainFont);
-        usernameLabel.setFont(plainFont);
-        tokenInfoLabel.setFont(plainFont);
-        tokenLabel.setFont(plainFont);
-        tokenLabel.setForeground(Color.BLUE);
-
-        infoPanel.add(dateTimeLabel);
-        infoPanel.add(createDateTimeLabel());
-        infoPanel.add(usernameLabel);
-        infoPanel.add(usernameInfoLabel);
-        infoPanel.add(tokenInfoLabel);
-        infoPanel.add(tokenLabel);
-        infoPanel.add(createTokenButton(tokenLabel));
-
-        tokenLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                tokenLabel.requestFocusInWindow();
-                StringSelection stringSelection = new StringSelection(tokenLabel.getText());
-                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                clipboard.setContents(stringSelection, null);
-                JOptionPane.showMessageDialog(BaseFrame.this, "Copied to clipboard", "Message", JOptionPane.INFORMATION_MESSAGE);
-                tokenLabel.setText("");
-            }
-        });
+        tabbedPane.addTab(localizationService.get("button.console"), consolePanel);
 
         JPanel languagePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JLabel languageLabel = new JLabel("Choose language:");
-        JComboBox<String> languageComboBox = new JComboBox<>(new String[]{"English", "Русский"});
+        languageLabel = new JLabel(localizationService.get("label.choose.language"));
+        LanguageComboBox languageComboBox = new LanguageComboBox(this);
         languagePanel.add(languageLabel);
         languagePanel.add(languageComboBox);
 
         add(languagePanel, BorderLayout.NORTH);
 
-        tabbedPane.addTab("Info", infoPanel);
-
         add(tabbedPane, BorderLayout.CENTER);
 
-        JButton helpButton = new JButton("Help");
-        JButton loginButton = new JButton("Login");
+        helpButton = new JButton(localizationService.get("button.info"));
+        loginButton = new JButton(localizationService.get("button.authorization"));
+        visualButton = new JButton(localizationService.get("button.visual")); // Add Visual button
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(helpButton);
         buttonPanel.add(loginButton);
+        buttonPanel.add(visualButton); // Add Visual button
         add(buttonPanel, BorderLayout.SOUTH);
 
         loginButton.addActionListener(e -> {
@@ -118,33 +120,57 @@ public class BaseFrame extends JFrame {
             helpFrame.setVisible(true);
         });
 
+        visualButton.addActionListener(e -> {
+            visualFrame.setVisible(true); // Show VisualFrame
+        });
+
+
         submitButton.addActionListener(e -> {
-            CommandResponse response = commandRestClient.query(inputField.getText(), null);
-            serverResponseArea.append("Server message:\n" + response.message() + '\n');
+            try {
+                CommandResponse response = commandRestClient.query(inputField.getText(), null);
+                serverResponseArea.append(localizationService.get("notification.servermsg") + '\n' + response.message() + '\n');
+            } catch (Exception exception) {
+                JOptionPane.showMessageDialog(BaseFrame.this,
+                        localizationService.get("error.serverunavailable"),
+                        localizationService.get("error.title"), JOptionPane.ERROR_MESSAGE);
+            }
             inputField.setText("");
         });
 
-        setSize(800, 600);
+        TableRowSorter<MovieTableModel> sorter = new TableRowSorter<>(movieTableModel);
+        table.setRowSorter(sorter);
+
+
+        addButton = new JButton(localizationService.get("button.add"));
+        buttonPanel.add(addButton); // Добавляем кнопку Add в панель с кнопками
+
+        addButton.addActionListener(e -> {
+            addFrame.setVisible(true);
+        });
+
+
+
+        setSize(1200, 800);
         setVisible(true);
     }
 
-    private JLabel createDateTimeLabel() {
-        JLabel dateTimeLabel = new JLabel();
-        updateDateTimeLabel(dateTimeLabel);
-        Timer timer = new Timer(1000, e -> updateDateTimeLabel(dateTimeLabel));
-        timer.start();
-        return dateTimeLabel;
+    public void refreshUI() {
+        super.setTitle(localizationService.get("base.frame.title"));
+        helpButton.setText(localizationService.get("button.info"));
+        loginButton.setText(localizationService.get("button.authorization"));
+        visualButton.setText(localizationService.get("button.visual"));
+        submitButton.setText(localizationService.get("button.submit"));
+        addButton.setText(localizationService.get("button.add"));
+        tabbedPane.setTitleAt(0, localizationService.get("base.panel.tab"));
+        tabbedPane.setTitleAt(1, localizationService.get("button.console"));
     }
 
-    private void updateDateTimeLabel(JLabel label) {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        label.setText(now.format(formatter));
+    public void refreshTable() throws Exception {
+        if (NetConfiguration.authToken != null) {
+            movieTableModel.getMovieDTOS().clear();
+            movieTableModel.getMovieDTOS().addAll(collectionRestClient.findAll());
+            movieTableModel.fireTableDataChanged();
+        }
     }
 
-    private JButton createTokenButton(JLabel tokenLabel) {
-        JButton tokenButton = new JButton("Token");
-        tokenButton.addActionListener(e -> tokenLabel.setText(NetConfiguration.authToken));
-        return tokenButton;
-    }
 }

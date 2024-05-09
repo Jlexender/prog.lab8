@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 import java.time.ZonedDateTime;
@@ -22,6 +23,7 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 @Builder
+@ToString
 public class Person {
     @NotNull
     @NotBlank

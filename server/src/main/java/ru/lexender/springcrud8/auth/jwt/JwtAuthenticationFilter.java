@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException, RuntimeException {
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
         log.info("Processing JWT authentication");
         String authHeader = request.getHeader("Authorization");
 
@@ -42,14 +42,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info("Auth header likely contains token");
 
         String token = authHeader.substring(7);
-        String username = jwtService.extractSubject(token);
+
+        String username = null;
+        try {
+            username = jwtService.extractSubject(token);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-            if (jwtService.isTokenValid(token, userDetails)) {
-                log.info("JWT is indeed valid");
+            if (jwtService.isTokenValid(token, userDetails) && jwtService.isAccessToken(token)) {
+                log.info("JWT is indeed valid access token");
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
 
@@ -59,7 +65,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
-
             filterChain.doFilter(request, response);
         }
     }

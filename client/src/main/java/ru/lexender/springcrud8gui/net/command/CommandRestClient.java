@@ -1,4 +1,4 @@
-package ru.lexender.springcrud8gui.command;
+package ru.lexender.springcrud8gui.net.command;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class CommandRestClient {
         return headers;
     }
 
-    public CommandResponse query(String msg, List<MovieDTO> movies) {
+    public CommandResponse query(String msg, List<MovieDTO> movies) throws Exception {
         CommandRequest request = new CommandRequest(msg, movies);
         HttpEntity<CommandRequest> entity = new HttpEntity<>(request, getDefaultHeaders());
         return restTemplate.postForObject(address.get() + "/api/query", entity, CommandResponse.class);

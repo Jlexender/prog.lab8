@@ -3,9 +3,8 @@ package ru.lexender.springcrud8.dto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
@@ -13,10 +12,10 @@ import java.time.LocalDate;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 @Builder
+@Data
 public class MovieDTO {
+    Long id;
     String name;
     CoordinatesDTO coordinates;
     LocalDate creationDate;
@@ -25,4 +24,5 @@ public class MovieDTO {
     Integer length;
     MovieGenre genre;
     PersonDTO operator;
+    UserdataDTO author;
 }

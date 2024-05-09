@@ -1,4 +1,4 @@
-package ru.lexender.springcrud8gui.auth;
+package ru.lexender.springcrud8gui.net.auth;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

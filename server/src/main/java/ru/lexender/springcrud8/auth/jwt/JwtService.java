@@ -23,11 +23,14 @@ import java.util.function.Function;
 public class JwtService {
     SecretKey secretKey;
     Long duration;
+    Long RTduration;
 
     public JwtService(SecretKey secretKey,
-                      @Value("${crudserver.jwt.token.duration}") Long duration) {
+                      @Value("${crudserver.jwt.token.duration}") Long duration,
+                      @Value("${crudserver.jwt.rt.duration}") Long RTduration) {
         this.secretKey = secretKey;
         this.duration = duration;
+        this.RTduration = RTduration;
         log.info("JwtService.duration: {}", duration);
     }
 
@@ -35,6 +38,18 @@ public class JwtService {
         return Jwts.
                 builder()
                 .claim("sub", user.getUsername())
+                .claim("typ", "access")
+                .issuedAt(Date.from(Instant.now()))
+                .expiration(Date.from(Instant.now().plusSeconds(duration)))
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public String generateToken(String user) {
+        return Jwts.
+                builder()
+                .claim("sub", user)
+                .claim("typ", "access")
                 .issuedAt(Date.from(Instant.now()))
                 .expiration(Date.from(Instant.now().plusSeconds(duration)))
                 .signWith(secretKey)
@@ -42,8 +57,9 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
+        if (isTokenExpired(token)) return false;
         String username = extractSubject(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        return (username.equals(userDetails.getUsername()));
     }
 
     <T> T extractClaim(String token, Function<Claims, T> resolver) {
@@ -52,6 +68,14 @@ public class JwtService {
 
     Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
+    }
+
+    public boolean isRefreshToken(String token) {
+        return extractClaims(token).get("typ").equals("refresh");
+    }
+
+    public boolean isAccessToken(String token) {
+        return extractClaims(token).get("typ").equals("access");
     }
 
     public String extractSubject(String token) {
@@ -69,6 +93,17 @@ public class JwtService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    public String generateRT(String username) {
+        return Jwts.
+                builder()
+                .claim("sub", username)
+                .claim("typ", "refresh")
+                .issuedAt(Date.from(Instant.now()))
+                .expiration(Date.from(Instant.now().plusSeconds(RTduration)))
+                .signWith(secretKey)
+                .compact();
     }
 
 }

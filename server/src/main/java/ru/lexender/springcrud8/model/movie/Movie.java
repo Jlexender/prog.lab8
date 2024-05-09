@@ -18,6 +18,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import ru.lexender.springcrud8.auth.userdata.Userdata;
@@ -33,6 +34,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
+@ToString
 public class Movie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
