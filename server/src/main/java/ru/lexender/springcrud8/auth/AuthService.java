@@ -54,12 +54,7 @@ public class AuthService {
 
     public AuthResponse refresh(String username, String token) {
         log.info("Trying to refresh by RT");
-
-        Optional<Userdata> foundUser = userdataService.findByUsername(username);
-        if (foundUser.isEmpty()) {
-            return new AuthResponse(true, "DENIED", null, null);
-        }
-        Userdata user = foundUser.get();
+        Userdata user = userdataService.findByUsername(username).orElseThrow();
 
         if (passwordEncoder.matches(token, user.getRefreshToken())) {
             String accessToken = jwtService.generateToken(user);
