@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.lexender.springcrud8.auth.jwt.JwtService;
-import ru.lexender.springcrud8.auth.refresh.RefreshRepository;
-import ru.lexender.springcrud8.auth.refresh.RefreshService;
-import ru.lexender.springcrud8.auth.refresh.RefreshToken;
 import ru.lexender.springcrud8.auth.userdata.Userdata;
 import ru.lexender.springcrud8.auth.userdata.UserdataService;
 import ru.lexender.springcrud8.transfer.AuthResponse;
@@ -24,9 +21,7 @@ public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     AuthService authService;
     UserdataService userdataService;
-    private final RefreshService refreshService;
     private final JwtService jwtService;
-    private final RefreshRepository refreshRepository;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(
@@ -34,14 +29,10 @@ public class AuthController {
             @RequestParam String password) {
 
         if (userdataService.existsByUsername(username)) {
-            return ResponseEntity
-                    .status(200)
-                    .body(new AuthResponse(true, "User with this username already exists", null, null));
+            return ResponseEntity.ok(new AuthResponse(true, "User with this username already exists", null, null));
         }
         if (password.isBlank()) {
-            return ResponseEntity
-                    .status(200)
-                    .body(new AuthResponse(true, "Invalid username/password", null, null));
+            return ResponseEntity.ok(new AuthResponse(true, "Invalid username/password", null, null));
 
         }
 
@@ -71,16 +62,6 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@RequestParam String username,
                                                 @RequestParam String token) {
-        if (refreshService.validate(username, token)) {
-            return ResponseEntity.ok(new AuthResponse(
-                    false, "Granted",
-                    jwtService.generateToken(username), refreshRepository
-                    .save(new RefreshToken(username, jwtService.generateRT(username)))
-                    .getToken()));
-        }
-
-        return ResponseEntity.ok(new AuthResponse(
-                true, "Denied",
-                null, null));
+        return ResponseEntity.ok(authService.refresh(username, token));
     }
 }

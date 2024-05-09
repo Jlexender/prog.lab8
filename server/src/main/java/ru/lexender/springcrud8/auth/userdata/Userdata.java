@@ -52,6 +52,8 @@ public class Userdata implements UserDetails {
     @Builder.Default
     Boolean locked = false;
 
+    String refreshToken;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

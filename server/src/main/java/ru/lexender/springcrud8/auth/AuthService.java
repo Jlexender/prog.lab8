@@ -10,11 +10,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.lexender.springcrud8.auth.jwt.JwtService;
-import ru.lexender.springcrud8.auth.refresh.RefreshService;
-import ru.lexender.springcrud8.auth.refresh.RefreshToken;
 import ru.lexender.springcrud8.auth.userdata.Userdata;
 import ru.lexender.springcrud8.auth.userdata.UserdataService;
 import ru.lexender.springcrud8.transfer.AuthResponse;
+
+import java.util.Optional;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -25,15 +25,16 @@ public class AuthService {
     PasswordEncoder passwordEncoder;
     AuthenticationManager authenticationManager;
     JwtService jwtService;
-    private final RefreshService refreshService;
 
     public AuthResponse register(Userdata user) {
+        String accessToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRT(user.getUsername());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        String token = jwtService.generateToken(userdataService.save(user));
-        String rt = jwtService.generateRT(user.getUsername());
+        user.setRefreshToken(passwordEncoder.encode(refreshToken));
+
+        userdataService.save(user);
         return new AuthResponse(false, "Successfully registered",
-                token,
-                refreshService.save(new RefreshToken(user.getUsername(), rt)).getToken());
+                accessToken, refreshToken);
     }
 
     public AuthResponse authenticate(String username, String password) {
@@ -42,10 +43,31 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(username, password)
         );
         Userdata user = userdataService.findByUsername(username).orElseThrow();
-        String token = jwtService.generateToken(user);
-        String rt = jwtService.generateRT(user.getUsername());
+        String accessToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRT(user.getUsername());
 
-        return new AuthResponse(false, "Successfully logged in", token,
-                refreshService.save(new RefreshToken(username, rt)).getToken());
+        user.setRefreshToken(passwordEncoder.encode(refreshToken));
+        userdataService.save(user);
+        return new AuthResponse(false, "Successfully logged in",
+                accessToken, refreshToken);
+    }
+
+    public AuthResponse refresh(String username, String token) {
+        log.info("Trying to refresh by RT");
+
+        Optional<Userdata> foundUser = userdataService.findByUsername(username);
+        if (foundUser.isEmpty()) {
+            return new AuthResponse(true, "DENIED", null, null);
+        }
+        Userdata user = foundUser.get();
+
+        if (passwordEncoder.matches(token, user.getRefreshToken())) {
+            String accessToken = jwtService.generateToken(user);
+            String refreshToken = jwtService.generateRT(user.getUsername());
+            user.setRefreshToken(refreshToken);
+            userdataService.save(user);
+            return new AuthResponse(false, "GRANTED", accessToken, refreshToken);
+        }
+        return new AuthResponse(true, "DENIED", null, null);
     }
 }
