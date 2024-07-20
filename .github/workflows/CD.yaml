@@ -39,6 +39,8 @@ jobs:
     runs-on: ubuntu-latest
     if: success()  # Запускается только если предыдущий job успешен
     steps:
+      - name: Check combined JAR files
+        run: ls -la combined
       - name: Deploy with SCP
         uses: appleboy/scp-action@v0.0.10
         with:
