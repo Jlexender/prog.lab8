@@ -167,8 +167,8 @@ public class BaseFrame extends JFrame {
 
     public void refreshTable() throws Exception {
         if (NetConfiguration.authToken != null) {
-            movieTableModel.getMovieDTOS().clear();
-            movieTableModel.getMovieDTOS().addAll(collectionRestClient.findAll());
+            movieTableModel.getMovieDtos().clear();
+            movieTableModel.getMovieDtos().addAll(collectionRestClient.findAll());
             movieTableModel.fireTableDataChanged();
         }
     }

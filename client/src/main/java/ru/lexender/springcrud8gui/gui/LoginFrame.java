@@ -93,8 +93,8 @@ public class LoginFrame extends JFrame {
                 try {
                     java.util.List<MovieDTO> movies = collectionRestClient.findAll();
                     infoFrame.getUsernameInfoLabel().setText(usernameField.getText());
-                    baseFrame.getMovieTableModel().getMovieDTOS().clear();
-                    baseFrame.getMovieTableModel().getMovieDTOS().addAll(movies);
+                    baseFrame.getMovieTableModel().getMovieDtos().clear();
+                    baseFrame.getMovieTableModel().getMovieDtos().addAll(movies);
                     baseFrame.getMovieTableModel().fireTableStructureChanged();
                     visualPanel.setObjects(movies);
                 } catch (Exception exception) {

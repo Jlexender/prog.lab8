@@ -163,7 +163,7 @@ public class AddFrame extends JFrame {
 
                 // Отправляем запрос с помощью CommandRestClient
                 CommandResponse r = commandRestClient.query("add", java.util.List.of(movieDTO));
-                movieTableModel.getMovieDTOS().add(movieDTO);
+                movieTableModel.getMovieDtos().add(movieDTO);
 
                 JOptionPane.showMessageDialog(AddFrame.this, localizationService.get("addcmd.added"),
                         localizationService.get("information.title"), JOptionPane.INFORMATION_MESSAGE);
