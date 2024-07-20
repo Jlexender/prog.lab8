@@ -28,6 +28,12 @@ jobs:
       - name: List target directory
         run: ls -la target  # Проверяем, что файлы действительно созданы
 
+      - name: Combine JAR files
+        run: |
+          mkdir -p combined
+          cp client/target/*.jar combined/
+          cp server/target/*.jar combined/
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -39,5 +45,5 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "client/target/*.jar", "server/target/*.jar"
+          source: "combined/*.jar"
           target: "/home/${{ secrets.SSH_USERNAME }}/"
