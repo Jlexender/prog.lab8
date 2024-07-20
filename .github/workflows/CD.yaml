@@ -25,9 +25,6 @@ jobs:
       - name: Build with Maven
         run: mvn clean compile package
 
-      - name: List target directory
-        run: ls -la target  # Проверяем, что файлы действительно созданы
-
       - name: Combine JAR files
         run: |
           mkdir -p combined
