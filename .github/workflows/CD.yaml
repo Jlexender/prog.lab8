@@ -31,6 +31,9 @@ jobs:
           cp client/target/*.jar combined/
           cp server/target/*.jar combined/
 
+      - name: Check combined JAR files
+        run: ls -la combined
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
