@@ -1,4 +1,4 @@
-name: Build all modules
+name: Build all modules and deploy to SSH server using SCP
 
 on:
     push:
