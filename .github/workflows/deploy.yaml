@@ -11,7 +11,7 @@ on:
 
 jobs:
     deploy:
-        needs: build
+        needs: ./build.yaml
         runs-on: ubuntu-latest
         steps:
         - name: Checkout
