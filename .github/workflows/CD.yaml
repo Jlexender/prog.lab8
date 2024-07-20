@@ -58,4 +58,4 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: "2222"
           source: "*.jar"  # Путь к артефактам
-          target: "/home/${{ secrets.SSH_USERNAME }}/"
+          target: "/home/s408724/"
