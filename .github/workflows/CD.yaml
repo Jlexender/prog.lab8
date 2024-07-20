@@ -51,7 +51,9 @@ jobs:
           name: combined-jars
 
       - name: List downloaded JAR files
-        run: ls -la combined-jars
+        run: |
+          ls -la  # Проверка всех файлов в рабочем каталоге
+          ls -la combined-jars  # Проверка директории артефактов
 
       - name: Deploy with SCP
         uses: appleboy/scp-action@v0.0.10
@@ -59,5 +61,5 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "combined-jars/*.jar"
+          source: "combined-jars/*.jar"  # Путь к артефактам
           target: "/home/${{ secrets.SSH_USERNAME }}/"
