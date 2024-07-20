@@ -31,16 +31,28 @@ jobs:
           cp client/target/*.jar combined/
           cp server/target/*.jar combined/
 
-      - name: Check combined JAR files
+      - name: List combined JAR files
         run: ls -la combined
+
+      - name: Upload JAR files as artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: combined-jars
+          path: combined/
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    if: success()  # Запускается только если предыдущий job успешен
+    if: success()
     steps:
-      - name: Check combined JAR files
+      - name: Download JAR files
+        uses: actions/download-artifact@v3
+        with:
+          name: combined-jars
+
+      - name: List downloaded JAR files
         run: ls -la combined
+
       - name: Deploy with SCP
         uses: appleboy/scp-action@v0.0.10
         with:
