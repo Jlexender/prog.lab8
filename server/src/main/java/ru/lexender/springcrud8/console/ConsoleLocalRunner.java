@@ -35,7 +35,7 @@ public class ConsoleLocalRunner implements Runnable {
                 .build();
 
         userdataService.replaceByUsername("root", rootCredentials);
-
+        // userdataService.save(rootCredentials);
         executor.execute(this);
     }
 
