@@ -23,6 +23,14 @@ jobs:
         - name: Build with Maven
           run: mvn clean compile package
 
+
+        #
+        #
+    #########
+        #
+        #
+        # Deploy to SSH server using SCP
+        #
     deploy:
       needs: build
       runs-on: ubuntu-latest
